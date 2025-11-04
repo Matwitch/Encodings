@@ -7,6 +7,8 @@ from helpers import read_bin_file_data, write_bin_data_to_file
 import tkinter as tk
 from tkinter import filedialog, ttk
 
+
+
 # ------------------ Callbacks ------------------
 def select_file():
     path = filedialog.askopenfilename(
@@ -31,7 +33,12 @@ def on_decode():
     data = read_bin_file_data(filepath.get())
 
     if algorithm.get() == "RLE":
-        decoded_data = RLE_decode(data)
+        try:
+            decoded_data = RLE_decode(data)
+        except RuntimeError as e:
+            log_textbox.config(text=f"DECODING ERROR: {e} \nMake sure that file is {algorithm.get()}-encoded.", foreground="red")
+            return
+
 
     else:
         log_textbox.config(text=f"Algorithm ({algorithm}) is not supported yet", foreground="red")

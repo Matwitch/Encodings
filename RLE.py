@@ -4,6 +4,9 @@ def RLE_encode(data: bytes,
                min_seq_len_to_compress: int = 3) -> bytes:
     
     N = len(data)
+    if N == 0:
+        raise RuntimeError("Cannot encode empty data")
+
     encoded_data = bytearray()
 
     def write_same_byte(beg: int, end: int):
