@@ -40,6 +40,8 @@ class HuffmanNode:
         else:
             raise ValueError("Invalid parameters for HuffmanNode")
         
+    def __lt__(self, other) -> bool:
+        return self.weight < other.weight
 
     def is_leaf(self) -> bool:
         if (self.node0 is None) and (self.node1 is None) and (not (self.symbol is None)) and (not (self.weight is None)):
@@ -56,8 +58,8 @@ class HuffmanNode:
         
         else:
             code_dict = {}
-            code_dict.update(self.node0.get_code_dict(prefix + (False)))
-            code_dict.update(self.node1.get_code_dict(prefix + (True)))
+            code_dict.update(self.node0.get_code_dict(prefix + tuple([False])))
+            code_dict.update(self.node1.get_code_dict(prefix + tuple([True])))
 
             return code_dict
         
@@ -66,7 +68,7 @@ def count_byte_frequencies(data: bytes) -> dict:
     frequency_dict = {}
     
     for b in range(0, 256):
-        frequency_dict[int.to_bytes(b, length=1, byteorder='big')] = 0
+        frequency_dict[b] = 0
 
     for byte in data:
         frequency_dict[byte] += 1
@@ -84,16 +86,16 @@ def build_huffman_tree(frequency_dict: dict) -> HuffmanNode:
         if freq < 0:
             raise ValueError("Frequency must be non-negative")
         leaf_node = HuffmanNode.create_leaf(symbol, freq)
-        heapq.heappush(priority_queue, (freq, leaf_node))
+        heapq.heappush(priority_queue, leaf_node)
     
     while len(priority_queue) > 1:
-        _, node0 = heapq.heappop(priority_queue)
-        _, node1 = heapq.heappop(priority_queue)
+        node0 = heapq.heappop(priority_queue)
+        node1 = heapq.heappop(priority_queue)
         
         internal_node = HuffmanNode.create_internal(node0, node1)
-        heapq.heappush(priority_queue, (internal_node.weight, internal_node))
+        heapq.heappush(priority_queue, internal_node)
     
-    return priority_queue[0][1]
+    return priority_queue[0]
 
 
 class HuffmanCodeIterator:
@@ -131,10 +133,10 @@ def huffman_encode(data: bytes) -> bytes:
 
     for b in range(0, 256):
         ws.write_byte(int.to_bytes(b, length=1, byteorder='big'))
-        ws.write_byte(int.to_bytes(freq.get(b, 0), length=4, byteorder='big'))
+        ws.write_bytes(int.to_bytes(freq.get(b, 0), length=4, byteorder='big'))
 
 
-    ws.write_byte(int.to_bytes(len(bytes), length=4, byteorder='big'))    
+    ws.write_bytes(int.to_bytes(len(data), length=4, byteorder='big'))    
 
     for b in data:
         code = code_dict[b]

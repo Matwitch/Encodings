@@ -3,6 +3,7 @@ import os
 
 from RLE import RLE_decode, RLE_encode
 from helpers import read_bin_file_data, write_bin_data_to_file
+from Huffman import huffman_decode, huffman_encode
 
 import tkinter as tk
 from tkinter import filedialog, ttk
@@ -32,17 +33,21 @@ def on_decode():
 
     data = read_bin_file_data(filepath.get())
 
-    if algorithm.get() == "RLE":
-        try:
+
+    try:
+        if algorithm.get() == "RLE":
             decoded_data = RLE_decode(data)
-        except RuntimeError as e:
-            log_textbox.config(text=f"DECODING ERROR: {e} \nMake sure that file is {algorithm.get()}-encoded.", foreground="red")
+        elif algorithm.get() == "Huffman":
+            decoded_data = huffman_decode(data)
+
+        else:
+            log_textbox.config(text=f"Algorithm ({algorithm.get()}) is not supported yet", foreground="red")
             return
-
-
-    else:
-        log_textbox.config(text=f"Algorithm ({algorithm.get()}) is not supported yet", foreground="red")
+    
+    except RuntimeError as e:
+        log_textbox.config(text=f"DECODING ERROR: {e} \nMake sure that file is {algorithm.get()}-encoded.", foreground="red")
         return
+
 
 
     save_filepath = filedialog.asksaveasfilename(
@@ -67,7 +72,7 @@ def on_encode():
         log_textbox.config(text="Such file does not exist", foreground="red")
         return
     
-    name = os.path.basename(filepath.get())
+    name = os.path.splitext(os.path.basename(filepath.get()))[0]
     ext = os.path.splitext(filepath.get())[1]
     dir = os.path.dirname(filepath.get())
 
@@ -75,7 +80,9 @@ def on_encode():
 
     if algorithm.get() == "RLE":
         encoded_data = RLE_encode(data)
-        
+    
+    elif algorithm.get() == "Huffman":
+        encoded_data = huffman_encode(data)
 
     else:
         log_textbox.config(text=f"Algorithm ({algorithm.get()}) is not supported yet", foreground="red")
@@ -85,7 +92,7 @@ def on_encode():
     save_filepath = filedialog.asksaveasfilename(
         title="Save File",
         initialdir=dir,
-        initialfile=name + "_RLE_encoded.bin",
+        initialfile=name + f"_{algorithm.get()}_encoded.bin",
         defaultextension=".bin",            # Default file extension
         filetypes=[("Binary files", "*.bin"),
                     ("All files", "*.*")]   # Filter file types
