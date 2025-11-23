@@ -41,7 +41,7 @@ def on_decode():
 
 
     else:
-        log_textbox.config(text=f"Algorithm ({algorithm}) is not supported yet", foreground="red")
+        log_textbox.config(text=f"Algorithm ({algorithm.get()}) is not supported yet", foreground="red")
         return
 
 
@@ -78,7 +78,7 @@ def on_encode():
         
 
     else:
-        log_textbox.config(text=f"Algorithm ({algorithm}) is not supported yet", foreground="red")
+        log_textbox.config(text=f"Algorithm ({algorithm.get()}) is not supported yet", foreground="red")
         return
 
 

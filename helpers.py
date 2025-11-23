@@ -61,7 +61,7 @@ class ReadBitStream:
         return B
 
     def read_bytes(self, k):
-        B = bytes(k)
+        B = bytearray(k)
 
         for l in range(k):
             B[l] = self.read_byte()
@@ -135,7 +135,7 @@ def read_bin_file_data(filepath: str) -> bytes:
     return data
 
 
-def write_bin_data_to_file(data, filepath: str) -> bytes:
+def write_bin_data_to_file(data, filepath: str):
     path, ext = os.path.splitext(filepath)
 
     with open(filepath, 'wb') as f: 
