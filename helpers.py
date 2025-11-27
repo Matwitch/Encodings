@@ -3,6 +3,20 @@ import copy
 from typing import Iterable
 
 
+
+def int_to_bits(n: int, bit_length: int) -> Iterable[bool]:
+    if n >= 2 ** bit_length:
+        raise ValueError("n is too large to fit in the specified bit length")
+    
+    B = [b == "1" for b in format(n, "b")]
+
+    return [False] * (bit_length - len(B)) + B
+
+
+def bits_to_int(B: Iterable[bool]) -> int:
+    return int(''.join('1' if b else '0' for b in B), 2)
+
+
 class ReadBitStream:
     def __init__(self, data: bytes | bytearray):
         if isinstance(data, bytes):
@@ -30,6 +44,18 @@ class ReadBitStream:
         if self.i + 8*self.j >= self.N:
             self.eos = True
 
+
+    def remaining_bits(self) -> int:
+        return self.N - (self.i + 8*self.j)
+
+
+    def read_all_bits(self) -> Iterable[bool]:
+        B = []
+
+        while not self.eos:
+            B.append(self.read_bit())
+        
+        return B
 
     def read_bit(self):
         if self.eos:

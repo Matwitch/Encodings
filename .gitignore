@@ -1,5 +1,6 @@
 dist/
 build/
+Test Files/
 __pycache__/
 
 *.ico
