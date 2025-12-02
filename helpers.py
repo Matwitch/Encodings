@@ -1,6 +1,42 @@
 import os
 import copy
 from typing import Iterable
+from radix_sort import radix_sort
+from numpy import argsort, ceil
+
+def BWT(block: bytes) -> bytes:
+    N = len(block)
+    M = [block[i:] + block[:i] for i in range(N)]
+    
+    M = radix_sort(
+            M, key=lambda x, idx: int(x[idx])
+        )
+
+    og_idx = M.index(block)
+    
+    last_column = bytearray(N)
+    for i in range(N):
+        last_column[i] = M[i][N-1]
+
+    last_column.extend(og_idx.to_bytes(int(ceil(N.bit_length() / 8)), byteorder='big'))
+    return bytes(last_column)
+
+
+def inverse_BWT(block: bytes, index_size_bytes: int) -> bytes:
+    N = len(block) - index_size_bytes
+    last_column = block[:N]
+    og_idx = int.from_bytes(block[N:], byteorder='big')
+    
+    sort_idx = argsort(list(last_column), kind='stable')
+    inv_sort_idx = argsort(sort_idx, kind='stable')
+
+    reconstructed = bytearray(N)
+    idx = og_idx
+    for i in range(N-1, -1, -1):
+        reconstructed[i] = last_column[idx]
+        idx = inv_sort_idx[idx]
+
+    return bytes(reconstructed)
 
 
 
