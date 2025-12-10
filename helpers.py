@@ -1,8 +1,32 @@
 import os
 import copy
-from typing import Iterable
+from typing import Iterable, List
 from radix_sort import radix_sort
 from numpy import argsort, ceil
+
+
+def MTF(block: bytes, alphabet: Iterable):
+    current_alph = [a for a in alphabet]
+
+    new_block = bytearray(len(block))
+    for i, b in enumerate(block):
+        idx = current_alph.index(b)
+        new_block[i] = idx
+        current_alph.insert(0, current_alph.pop(idx))
+
+    return new_block
+
+
+def inverse_MTF(block: bytes, alphabet: Iterable):
+    current_alph = [int(a) for a in alphabet]
+
+    new_block = bytearray(len(block))
+    for i, b in enumerate(block):
+        new_block[i] = current_alph[b]
+        current_alph.insert(0, current_alph.pop(b))
+
+    return new_block
+
 
 def BWT(block: bytes) -> bytes:
     N = len(block)
