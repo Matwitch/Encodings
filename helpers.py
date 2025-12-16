@@ -1,8 +1,11 @@
 import os
 import copy
-from typing import Iterable, List
+from typing import Iterable
 from radix_sort import radix_sort
 from numpy import argsort, ceil
+
+
+
 
 
 def MTF(block: bytes, alphabet: Iterable):
