@@ -5,7 +5,7 @@ from Huffman import huffman_encode, huffman_decode
 from LZW import lzw_compress, lzw_decompress
 from numpy import ceil
 from copy import deepcopy
-import time
+
 
 BWT_BLOCK_SIZE = 1024
 MTF_ALPH = [i for i in range(256)]
@@ -25,7 +25,6 @@ def compress(data: bytes, alg: Literal["RLE", "Huffman", "LZW"], **options) -> b
     else:
         _data = bytearray(data)
 
-    bwt_time = time.time()
     if "bwt" in _options and _options["bwt"]:
         new_data = bytearray(b'BWT_')
 
@@ -41,14 +40,11 @@ def compress(data: bytes, alg: Literal["RLE", "Huffman", "LZW"], **options) -> b
             new_data.extend(BWT(_data[i:i+BWT_BLOCK_SIZE]))
         
         _data = new_data
-    print(f"BWT time: {time.time() - bwt_time} seconds")
 
-    mtf_time = time.time()
     if "mtf" in _options and _options["mtf"]:
         _data = MTF(_data, MTF_ALPH)
         
         _data = bytearray(b'MTF_') + _data
-    print(f"MTF time: {time.time() - mtf_time} seconds")
 
     _data = bytes(_data)
 

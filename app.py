@@ -32,6 +32,9 @@ def on_decode():
 
     data = read_bin_file_data(filepath.get())
 
+    log_textbox.config(text="Decoding...", foreground="blue")
+    root.update_idletasks()
+    
     try:
         decoded_data = decompress(
             data,
@@ -42,11 +45,14 @@ def on_decode():
     
     except RuntimeError as e:
         log_textbox.config(text=f"DECODING ERROR: {e} \nMake sure that file is {algorithm.get()}-encoded.", foreground="red")
+        root.config(cursor="")
         return
     except ValueError as e:
         log_textbox.config(text=f"ERROR: {e} \nMake sure that decoding options correspond to the file encoding.", foreground="red")
+        root.config(cursor="")
         return
 
+    root.config(cursor="")
 
     save_filepath = filedialog.asksaveasfilename(
         title="Save File",
@@ -75,6 +81,8 @@ def on_encode():
     dir = os.path.dirname(filepath.get())
 
     data = read_bin_file_data(filepath.get())
+    log_textbox.config(text="Encoding...", foreground="blue")
+    root.update_idletasks()
 
     try:
         encoded_data = compress(
@@ -143,7 +151,7 @@ algorithm.pack()
 
 
 # ===== OPTIONAL PARAMETERS =====
-ttk.Label(root, text="Parameters (Optional):", background="#ffffff").pack(pady=(25, 7))
+ttk.Label(root, text="Parameters:", background="#ffffff").pack(pady=(25, 7))
 
 options_frame = ttk.Frame(root, style='Colored.TFrame')
 options_frame.pack(pady=(25, 7))
@@ -172,6 +180,8 @@ ttk.Button(button_frame, text="Decode", command=on_decode).grid(row=0, column=1,
 
 
 # ===== LOG TEXTBOX =====
+# progress = ttk.Progressbar(root, mode="indeterminate", length=300)
+# progress.pack(pady=25)
 log_textbox = ttk.Label(root, text="", foreground="blue", background="#ffffff")
 log_textbox.pack(pady=25)
 # ===== LOG TEXTBOX =====

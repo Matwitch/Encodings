@@ -1,10 +1,7 @@
 import os
 import copy
 from typing import Iterable
-# from radix_sort import radix_sort, counting_sort
 from numpy import argsort, ceil, frombuffer, roll, lexsort, uint8, array, argwhere
-import time
-
 
 
 
@@ -36,20 +33,10 @@ def BWT(block: bytes) -> bytes:
     _block = frombuffer(block, dtype=uint8)
     M = array([roll(_block, i) for i in range(N)])
 
-    # s_time = time.time()
-    
     idx = lexsort(M.T[::-1])
-    # kf = lambda x, k: int(x[k])
-    # for i in range(N-1, -1, -1):
-    #     # M = counting_sort(M, kf, i)
-    #     M.sort(key=lambda x, i=i: int(x[i]))
 
-    
     og_idx = int(argwhere(idx == 0)[0][0])
-    # print(f"BWT sorting time: {time.time() - s_time} seconds")
-    # last_column = bytearray(N)
-    # for i in range(N):
-    #     last_column[i] = M[i][N-1]
+
     last_column = bytearray(M[idx, -1].tobytes())
     last_column.extend(og_idx.to_bytes(int(ceil(N.bit_length() / 8)), byteorder='big'))
     return bytes(last_column)
