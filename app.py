@@ -1,9 +1,8 @@
 # file: simple_uwp_gui_with_row_buttons.py
 import os
 
-from RLE import RLE_decode, RLE_encode
+from compression import compress, decompress
 from helpers import read_bin_file_data, write_bin_data_to_file
-from Huffman import huffman_decode, huffman_encode
 
 import tkinter as tk
 from tkinter import filedialog, ttk
@@ -33,21 +32,20 @@ def on_decode():
 
     data = read_bin_file_data(filepath.get())
 
-
     try:
-        if algorithm.get() == "RLE":
-            decoded_data = RLE_decode(data)
-        elif algorithm.get() == "Huffman":
-            decoded_data = huffman_decode(data)
-
-        else:
-            log_textbox.config(text=f"Algorithm ({algorithm.get()}) is not supported yet", foreground="red")
-            return
+        decoded_data = decompress(
+            data,
+            alg=algorithm.get(),
+            bwt=bwt_flag.get(),
+            mtf=mtf_flag.get()
+        )
     
     except RuntimeError as e:
         log_textbox.config(text=f"DECODING ERROR: {e} \nMake sure that file is {algorithm.get()}-encoded.", foreground="red")
         return
-
+    except ValueError as e:
+        log_textbox.config(text=f"ERROR: {e} \nMake sure that decoding options correspond to the file encoding.", foreground="red")
+        return
 
 
     save_filepath = filedialog.asksaveasfilename(
@@ -59,7 +57,7 @@ def on_decode():
     
     if save_filepath: 
         write_bin_data_to_file(decoded_data, save_filepath)
-        log_textbox.config(text=f"Decoding: \n{filepath.get()} \nAlgorithm: \n{algorithm.get()} \nwith parameters: \n{parameters.get('1.0')}")
+        log_textbox.config(text=f"Decoding: \n{filepath.get()} \nAlgorithm: \n{algorithm.get()} \n with parameters: BWT={bwt_flag.get()}, MTF={mtf_flag.get()}", foreground="blue")
     
     else:
         log_textbox.config(text="Saving cancelled", foreground="red")
@@ -78,14 +76,19 @@ def on_encode():
 
     data = read_bin_file_data(filepath.get())
 
-    if algorithm.get() == "RLE":
-        encoded_data = RLE_encode(data)
+    try:
+        encoded_data = compress(
+            data,
+            alg=algorithm.get(),
+            bwt=bwt_flag.get(),
+            mtf=mtf_flag.get()
+        )
     
-    elif algorithm.get() == "Huffman":
-        encoded_data = huffman_encode(data)
-
-    else:
-        log_textbox.config(text=f"Algorithm ({algorithm.get()}) is not supported yet", foreground="red")
+    except RuntimeError as e:
+        log_textbox.config(text=f"ENCODING ERROR: {e} \nSorry", foreground="red")
+        return
+    except ValueError as e:
+        log_textbox.config(text=f"ERROR: {e} \nSorry", foreground="red")
         return
 
 
@@ -100,7 +103,7 @@ def on_encode():
     
     if save_filepath: 
         write_bin_data_to_file(encoded_data, save_filepath)
-        log_textbox.config(text=f"Encoding: \n{filepath.get()} \nAlgorithm: \n{algorithm.get()} \nwith parameters: \n{parameters.get('1.0')}")
+        log_textbox.config(text=f"Encoding: \n{filepath.get()} \nAlgorithm: \n{algorithm.get()} \nwith parameters: BWT={bwt_flag.get()}, MTF={mtf_flag.get()}", foreground="blue")
     
     else:
         log_textbox.config(text="Saving cancelled", foreground="red")
@@ -133,7 +136,7 @@ filepath.pack()
 # ===== SELECT ALGORITHM =====
 ttk.Label(root, text="Select Algorithm:", background="#ffffff").pack(pady=(25, 7))
 algorithm = ttk.Combobox(root, width=30, state="readonly")
-algorithm['values'] = ("RLE", "Base64", "Huffman", "LZW")
+algorithm['values'] = ("RLE", "Huffman", "LZW")
 algorithm.current(0)
 algorithm.pack()
 # ===== SELECT ALGORITHM =====
@@ -141,8 +144,19 @@ algorithm.pack()
 
 # ===== OPTIONAL PARAMETERS =====
 ttk.Label(root, text="Parameters (Optional):", background="#ffffff").pack(pady=(25, 7))
-parameters = tk.Text(root, height=4, wrap='word', relief='solid', bd=1)
-parameters.pack(padx=25, fill='both', expand=False)
+
+options_frame = ttk.Frame(root, style='Colored.TFrame')
+options_frame.pack(pady=(25, 7))
+
+bwt_flag = tk.BooleanVar(value=False)
+mtf_flag = tk.BooleanVar(value=False)
+
+bwt = tk.Checkbutton(options_frame, text="Burrows-Wheeler", variable=bwt_flag, background="#ffffff")
+mtf = tk.Checkbutton(options_frame, text="Move To Front", variable=mtf_flag, background="#ffffff")
+bwt.grid(row=0, column=0, padx=15, pady=5, sticky="w")
+mtf.grid(row=1, column=0, padx=15, pady=5, sticky="w")
+
+
 # ===== OPTIONAL PARAMETERS =====
 
 
@@ -158,7 +172,7 @@ ttk.Button(button_frame, text="Decode", command=on_decode).grid(row=0, column=1,
 
 
 # ===== LOG TEXTBOX =====
-log_textbox = ttk.Label(root, text="", foreground="blue")
+log_textbox = ttk.Label(root, text="", foreground="blue", background="#ffffff")
 log_textbox.pack(pady=25)
 # ===== LOG TEXTBOX =====
 

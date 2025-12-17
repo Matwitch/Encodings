@@ -1,5 +1,5 @@
 from typing import Callable, List
-
+import time
 def counting_sort(arr: List, key: Callable[[List, int], int], key_idx: int) -> List:
     N = len(arr)
 
@@ -44,7 +44,6 @@ def radix_sort(arr: List, key: Callable[[List, int], int]) -> List:
         return k
 
     sorted_arr = arr.copy()
-
     for key_idx in range(max_key_idx, -1, -1):
         sorted_arr = counting_sort(sorted_arr, safe_key, key_idx)
 
