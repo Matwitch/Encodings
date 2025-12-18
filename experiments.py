@@ -10,7 +10,7 @@ data_table = pd.DataFrame(columns=["Algorithm", "File Type", "MTF", "BWT",
                              "Compression Ratio mean", "Compression Ratio std", "Encoding Speed mean", "Encoding Speed std"])
 
 directory = "Test Files"
-for alg in ["RLE", "Huffman", "LZW"]:
+for alg in ["LZW"]:
     for ext in ["txt", "pdf", "png", "jpg", "mp3", "exe"]:
         for mtf in [True, False]:
             for bwt in [True, False]:
@@ -55,4 +55,4 @@ for alg in ["RLE", "Huffman", "LZW"]:
                 }
 
                 data_table = pd.concat([data_table, pd.DataFrame.from_dict(row_entry)], ignore_index=True)
-                data_table.to_csv("compression_results.csv", index=False) 
+                data_table.to_csv("compression_results2.csv", index=False) 

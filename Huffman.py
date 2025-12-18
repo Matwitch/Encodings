@@ -153,6 +153,9 @@ def huffman_decode(data: bytes) -> bytes:
 
     for _ in range(256):
         b = rs.read_byte()
+        if b != _:
+            raise ValueError("Incorrect Huffman frequency table format")
+        
         f_bytes = rs.read_bytes(4)
         freq[b] = int.from_bytes(f_bytes, byteorder='big')
 
