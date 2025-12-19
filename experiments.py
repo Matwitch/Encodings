@@ -10,8 +10,8 @@ data_table = pd.DataFrame(columns=["Algorithm", "File Type", "MTF", "BWT",
                              "Compression Ratio mean", "Compression Ratio std", "Encoding Speed mean", "Encoding Speed std"])
 
 directory = "Test Files"
-for alg in ["LZW"]:
-    for ext in ["txt", "pdf", "png", "jpg", "mp3", "exe"]:
+for alg in ["RLE", "Huffman", "LZW"]:
+    for ext in ["bmp"]:
         for mtf in [True, False]:
             for bwt in [True, False]:
                 compression_ratio = []
@@ -30,7 +30,7 @@ for alg in ["LZW"]:
                             mtf=mtf
                         )
                         encoding_speed.append(
-                            1024*(time.time() - es_time) / og_len
+                            og_len / (1024*1024*(time.time() - es_time))
                         ) 
                         
                         enc_len = len(encoded_data)
@@ -55,4 +55,4 @@ for alg in ["LZW"]:
                 }
 
                 data_table = pd.concat([data_table, pd.DataFrame.from_dict(row_entry)], ignore_index=True)
-                data_table.to_csv("compression_results2.csv", index=False) 
+                data_table.to_csv("bmp.csv", index=False) 
